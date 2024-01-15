@@ -25,6 +25,7 @@ export type DeliverJobData = {
 };
 
 export type InboxJobData = {
+	user?: ThinUser;
 	activity: IActivity;
 	signature: httpSignature.IParsedSignature;
 };
