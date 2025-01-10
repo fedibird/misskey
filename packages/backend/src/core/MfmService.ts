@@ -70,8 +70,13 @@ export class MfmService {
 
 		function analyze(node: Node) {
 			if (treeAdapter.isTextNode(node)) {
-				text += node.value;
-				return;
+				text += node.value.replace(/(:[A-Za-z0-9_+-]+:|[<>\[]|\*{1,3}|\\\(|\`{1,3}|_{1,2}|~~|検索|search)/g, (match, p1) => {
+					if (match.startsWith(':')) {
+						return p1;
+					} else {
+						return `<plain>${p1}</plain>`;
+					}
+				});
 			}
 
 			// Skip comment or document type node
