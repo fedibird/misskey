@@ -7,6 +7,7 @@ import { URL } from 'node:url';
 import { Inject, Injectable } from '@nestjs/common';
 import * as parse5 from 'parse5';
 import { Window, XMLSerializer } from 'happy-dom';
+import twemojiRegex from '@twemoji/parser/dist/lib/regex.js';
 import { DI } from '@/di-symbols.js';
 import type { Config } from '@/config.js';
 import { intersperse } from '@/misc/prelude/array.js';
@@ -22,6 +23,10 @@ type ChildNode = DefaultTreeAdapterMap['childNode'];
 
 const urlRegex = /^https?:\/\/[\w\/:%#@$&?!()\[\]~.,=+\-]+/;
 const urlRegexFull = /^https?:\/\/[\w\/:%#@$&?!()\[\]~.,=+\-]+$/;
+
+const mfmEscaperSource = `(?:(?<through>${twemojiRegex.default.source}|(?<![a-z0-9]):[a-z0-9_+-]+:(?![a-z0-9]))|(?<plain>[<@#]|\`{1,3}|(?<!\\\\)\\[|http))`;
+const mfmEscaperRegex = new RegExp(mfmEscaperSource, 'ig');
+const mfmEscaper = (...args: any[]) => (args.at(-1).through ?? `<plain>${args.at(-1).plain}</plain>`);
 
 @Injectable()
 export class MfmService {
@@ -70,7 +75,7 @@ export class MfmService {
 
 		function analyze(node: Node) {
 			if (treeAdapter.isTextNode(node)) {
-				text += node.value;
+				text += node.value.replace(mfmEscaperRegex, mfmEscaper);
 				return;
 			}
 
