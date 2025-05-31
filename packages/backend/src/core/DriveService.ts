@@ -510,6 +510,10 @@ export class DriveService {
 					await this.driveFilesRepository.update({ id: matched.id }, { isSensitive: true });
 					matched.isSensitive = true;
 				}
+				if (comment !== matched.comment) {
+					await this.driveFilesRepository.update({ id: matched.id }, { comment });
+					matched.comment = comment;
+				}
 				return matched;
 			}
 		}
